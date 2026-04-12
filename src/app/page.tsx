@@ -22,7 +22,6 @@ export default function Home() {
   
   // Timings
   const [startTime, setStartTime] = useState<number | null>(null);
-  const [endTime, setEndTime] = useState<number | null>(null);
 
   // Performance Stats
   const [wpm, setWpm] = useState(0);
@@ -43,7 +42,8 @@ export default function Home() {
   useEffect(() => {
     if (gameState === "TYPING" && startTime) {
       const interval = setInterval(() => {
-        const elapsedMinutes = (Date.now() - startTime) / 60000;
+        const now = Date.now();
+        const elapsedMinutes = (now - startTime) / 60000;
         const words = typedChars.length / 5;
         const currentWpm = elapsedMinutes > 0 ? (words / elapsedMinutes) : 0;
         setRealTimeWpm(currentWpm);
@@ -76,6 +76,12 @@ export default function Home() {
     }
   }, [gameState, currentSentenceIdx]);
 
+  const trackKeyPress = (key: string) => {
+    if (!activeKeys.current[key]) {
+      activeKeys.current[key] = Date.now();
+    }
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       // Basic check to see if most of the sentence was typed
@@ -89,9 +95,8 @@ export default function Home() {
       finishSentence();
       return;
     }
-    if (!activeKeys.current[e.key]) {
-      activeKeys.current[e.key] = Date.now();
-    }
+    
+    trackKeyPress(e.key);
   };
 
   const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -119,7 +124,6 @@ export default function Home() {
 
   const finishGame = () => {
     const end = Date.now();
-    setEndTime(end);
     
     const minutes = (end - (startTime || end)) / 60000;
     const targetText = sentences.join(" ");

@@ -2,7 +2,19 @@
 
 import { Download } from 'lucide-react';
 
-export default function ExportButton({ data }: { data: any[] }) {
+interface Session {
+  id: string;
+  createdAt: Date | string;
+  mentalFatigue: number;
+  focusLevel: number;
+  fatigueLabel: number;
+  wpm: number;
+  errorRate: number;
+  targetText: string;
+  typedText: string;
+}
+
+export default function ExportButton({ data }: { data: Session[] }) {
   const downloadCsv = () => {
     const header = "SessionId,Date,MentalFatigue,FocusLevel,FatigueLabel,WPM,Accuracy,TargetText,TypedText\n";
     const csvContent = data.map(s => {

@@ -3,6 +3,12 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+interface KeystrokeInput {
+  key: string;
+  pressTime: number;
+  releaseTime: number;
+}
+
 export async function POST(request: Request) {
   try {
     const data = await request.json();
@@ -22,7 +28,7 @@ export async function POST(request: Request) {
         targetText,
         typedText,
         keystrokes: {
-          create: keystrokes.map((ks: any) => ({
+          create: keystrokes.map((ks: KeystrokeInput) => ({
             key: ks.key,
             pressTime: ks.pressTime,
             releaseTime: ks.releaseTime,

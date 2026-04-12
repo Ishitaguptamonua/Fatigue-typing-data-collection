@@ -7,9 +7,9 @@ export const dynamic = 'force-dynamic';
 
 const prisma = new PrismaClient();
 
-export default async function AdminDashboard({ searchParams }: { searchParams: { pass?: string } }) {
-  const password = await searchParams; // Next.js 15+ searchParams is an awaitable
-  const accessGranted = (password as any).pass === "87654321";
+export default async function AdminDashboard({ searchParams }: { searchParams: Promise<{ pass?: string }> }) {
+  const resolvedParams = await searchParams;
+  const accessGranted = resolvedParams.pass === "87654321";
 
   if (!accessGranted) {
     return (
