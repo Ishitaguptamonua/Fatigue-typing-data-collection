@@ -1,21 +1,48 @@
 import { PrismaClient } from '@prisma/client';
-import { Database, Lock, Activity, Hash, Clock, MousePointer2 } from 'lucide-react';
+import { Database, Activity, Hash, Clock, MousePointer2, Lock } from 'lucide-react';
+import ExportButton from './ExportButton';
 
 // Force dynamic rendering since we want to always see real-time data
 export const dynamic = 'force-dynamic';
 
 const prisma = new PrismaClient();
 
-export default async function AdminDashboard() {
+export default async function AdminDashboard({ searchParams }: { searchParams: { pass?: string } }) {
+  const password = await searchParams; // Next.js 15+ searchParams is an awaitable
+  const accessGranted = (password as any).pass === "87654321";
+
+  if (!accessGranted) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-6 text-slate-100">
+        <div className="max-w-md w-full bg-white/5 border border-white/10 p-8 rounded-3xl text-center">
+          <Lock className="w-12 h-12 text-indigo-400 mx-auto mb-6" />
+          <h1 className="text-2xl font-bold text-white mb-2 font-sans underline decoration-indigo-500/50">Registry Locked</h1>
+          <p className="text-slate-400 mb-8 text-sm">Please provide the administrative key to access the research data.</p>
+          <form className="space-y-4">
+            <input 
+              name="pass" 
+              type="password" 
+              placeholder="Enter Access Key..." 
+              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-colors"
+            />
+            <button type="submit" className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-semibold transition-colors">
+              Request Access
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
   const sessions = await prisma.session.findMany({
     orderBy: { createdAt: 'desc' },
-    take: 60 // Usually they only need max 60 for their study
+    take: 100 
   });
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-slate-200 font-sans p-8 md:p-12">
       <div className="max-w-6xl mx-auto">
-        <header className="flex justify-between items-end mb-12 border-b border-white/10 pb-6">
+        <header className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 border-b border-white/10 pb-6 gap-6">
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-3 text-white">
               <Database className="text-indigo-400" />
@@ -23,9 +50,14 @@ export default async function AdminDashboard() {
             </h1>
             <p className="text-slate-400 mt-2">Internal viewing strictly for fatigue markers.</p>
           </div>
-          <div className="text-right">
-            <div className="text-3xl font-mono text-indigo-400">{sessions.length} / 60</div>
-            <div className="text-xs uppercase tracking-widest text-slate-500 font-semibold">Total Sessions Counted</div>
+          <div className="flex flex-col items-end gap-3 font-mono">
+            <div className="flex items-center gap-4">
+               <ExportButton data={sessions} />
+               <div className="text-right">
+                <div className="text-3xl font-mono text-indigo-400">{sessions.length} / 60</div>
+                <div className="text-xs uppercase tracking-widest text-slate-500 font-semibold">Sessions Counted</div>
+               </div>
+            </div>
           </div>
         </header>
 

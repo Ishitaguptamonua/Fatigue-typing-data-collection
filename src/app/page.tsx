@@ -37,12 +37,36 @@ export default function Home() {
   const activeKeys = useRef<{ [key: string]: number }>({});
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const [realTimeWpm, setRealTimeWpm] = useState(0);
+  const [realTimeAccuracy, setRealTimeAccuracy] = useState(100);
+
+  useEffect(() => {
+    if (gameState === "TYPING" && startTime) {
+      const interval = setInterval(() => {
+        const elapsedMinutes = (Date.now() - startTime) / 60000;
+        const words = typedChars.length / 5;
+        const currentWpm = elapsedMinutes > 0 ? (words / elapsedMinutes) : 0;
+        setRealTimeWpm(currentWpm);
+
+        const targetSoFar = sentences.slice(0, currentSentenceIdx).join(" ") + (currentSentenceIdx > 0 ? " " : "") + sentences[currentSentenceIdx].substring(0, Math.min(sentences[currentSentenceIdx].length, typedChars.length - (sentences.slice(0, currentSentenceIdx).join(" ").length + (currentSentenceIdx > 0 ? 1 : 0))));
+        
+        if (typedChars.length > 0) {
+          const accuracy = calculateAccuracy(targetSoFar, typedChars);
+          setRealTimeAccuracy(accuracy);
+        }
+      }, 500);
+      return () => clearInterval(interval);
+    }
+  }, [gameState, startTime, typedChars, sentences, currentSentenceIdx]);
+
   const startGame = () => {
     setSentences(getRandomSentences(5));
     setCurrentSentenceIdx(0);
     setTypedChars("");
     setKeystrokes([]);
     setStartTime(Date.now());
+    setRealTimeWpm(0);
+    setRealTimeAccuracy(100);
     setGameState("TYPING");
   };
 
@@ -54,6 +78,14 @@ export default function Home() {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
+      // Basic check to see if most of the sentence was typed
+      const currentSentence = sentences[currentSentenceIdx];
+      const typedForCurrent = typedChars.substring(sentences.slice(0, currentSentenceIdx).join(" ").length + (currentSentenceIdx > 0 ? 1 : 0));
+      
+      if (typedForCurrent.length < currentSentence.length * 0.5) {
+        return; // Prevent skipping
+      }
+      
       finishSentence();
       return;
     }
@@ -180,8 +212,20 @@ export default function Home() {
               className="w-full max-w-3xl mx-auto"
             >
               <div className="flex justify-between items-end mb-8">
-                <div className="text-indigo-400 font-mono text-sm uppercase tracking-widest font-semibold">
-                  Sequence {currentSentenceIdx + 1} / {sentences.length}
+                <div className="flex flex-col">
+                  <div className="text-indigo-400 font-mono text-sm uppercase tracking-widest font-semibold">
+                    Sequence {currentSentenceIdx + 1} / {sentences.length}
+                  </div>
+                  <div className="flex items-center gap-4 mt-2">
+                    <div className="flex items-center gap-1.5 px-3 py-1 bg-white/5 rounded-full border border-white/10">
+                      <Clock className="w-3.5 h-3.5 text-slate-400" />
+                      <span className="text-xs font-mono font-bold">{Math.round(realTimeWpm)} <span className="text-slate-500 text-[10px]">WPM</span></span>
+                    </div>
+                    <div className="flex items-center gap-1.5 px-3 py-1 bg-white/5 rounded-full border border-white/10">
+                      <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
+                      <span className="text-xs font-mono font-bold text-emerald-400">{Math.round(realTimeAccuracy)}<span className="text-[10px]">%</span></span>
+                    </div>
+                  </div>
                 </div>
                 <div className="flex gap-2">
                   <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
