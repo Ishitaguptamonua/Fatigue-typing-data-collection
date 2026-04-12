@@ -1,11 +1,9 @@
-import { PrismaClient } from '@prisma/client';
+import prisma from '@/lib/prisma';
 import { Database, Activity, Hash, Clock, MousePointer2, Lock } from 'lucide-react';
 import ExportButton from './ExportButton';
 
 // Force dynamic rendering since we want to always see real-time data
 export const dynamic = 'force-dynamic';
-
-const prisma = new PrismaClient();
 
 export default async function AdminDashboard({ searchParams }: { searchParams: Promise<{ pass?: string }> }) {
   const resolvedParams = await searchParams;
