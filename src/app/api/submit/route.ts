@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { getPrisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,6 +13,7 @@ export async function POST(request: Request) {
   try {
     const data = await request.json();
     const { mentalFatigue, focusLevel, targetText, typedText, keystrokes, wpm, errorRate } = data;
+    const prisma = getPrisma();
 
     // Strict Cognitive Fatigue Label Logic
     // Ignoring physical fatigue explicitly as requested.

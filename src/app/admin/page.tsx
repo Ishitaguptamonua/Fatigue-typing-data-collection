@@ -1,4 +1,4 @@
-import prisma from '@/lib/prisma';
+import { getPrisma } from '@/lib/prisma';
 import { Database, Activity, Hash, Clock, MousePointer2, Lock } from 'lucide-react';
 import ExportButton from './ExportButton';
 
@@ -32,6 +32,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
     );
   }
 
+  const prisma = getPrisma();
   const sessions = await prisma.session.findMany({
     orderBy: { createdAt: 'desc' },
     take: 100 
