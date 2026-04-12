@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Session {
+  id            String      @id @default(cuid())
+  createdAt     DateTime    @default(now())
+  mentalFatigue Int
+  focusLevel    Int
+  fatigueLabel  Int
+  wpm           Float
+  errorRate     Float
+  targetText    String
+  typedText     String
+  keystrokes    Keystroke[]
+}
+
+model Keystroke {
+  id          String  @id @default(cuid())
+  sessionId   String
+  session     Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  key         String
+  pressTime   Float
+  releaseTime Float
+}
