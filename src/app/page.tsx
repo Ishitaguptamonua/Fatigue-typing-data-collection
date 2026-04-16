@@ -19,14 +19,17 @@ const VALID_KEY_REGEX = /^[\w\s.,!?'"-]$/;
 
 export default function Home() {
   const [gameState, setGameState] = useState<GameState>("MENU");
+  // SSR-safe initial state
   const [participantName, setParticipantName] = useState("");
   const [nameError, setNameError] = useState("");
   const [testSectionId, setTestSectionId] = useState<string>("");
-    // Load participant name from localStorage on mount
-    useEffect(() => {
-      const storedName = typeof window !== "undefined" ? localStorage.getItem("participantName") : "";
+  // Only load from localStorage on client
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedName = localStorage.getItem("participantName");
       if (storedName) setParticipantName(storedName);
-    }, []);
+    }
+  }, []);
 
   const [sentences, setSentences] = useState<string[]>([]);
   const [currentSentenceIdx, setCurrentSentenceIdx] = useState(0);
@@ -78,7 +81,7 @@ export default function Home() {
       return;
     }
     setNameError("");
-    // Store participant name in localStorage
+    // Store participant name in localStorage (client only)
     if (typeof window !== "undefined") {
       localStorage.setItem("participantName", participantName.trim());
     }
@@ -86,13 +89,19 @@ export default function Home() {
     setCurrentSentenceIdx(0);
     setTypedChars("");
     setKeystrokes([]);
-    setStartTime(Date.now());
-    setRealTimeWpm(0);
-    setRealTimeAccuracy(100);
-    // Generate a new TestSectionId for this session
-    setTestSectionId(uuidv4());
+    // Generate a new TestSectionId and set start time in a client effect
     setGameState("TYPING");
   };
+
+  // Set TestSectionId and startTime only when entering TYPING state (client only)
+  useEffect(() => {
+    if (gameState === "TYPING") {
+      setTestSectionId(uuidv4());
+      setStartTime(Date.now());
+      setRealTimeWpm(0);
+      setRealTimeAccuracy(100);
+    }
+  }, [gameState]);
 
   useEffect(() => {
     if (gameState === "TYPING" && inputRef.current) {
