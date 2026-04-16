@@ -1,27 +1,30 @@
+
 import { PrismaClient } from '@prisma/client';
+import { PrismaNeon } from '@prisma/adapter-neon';
+import { neonConfig } from '@neondatabase/serverless';
+import ws from 'ws';
+
+// Node 22+ has a stable global WebSocket. Prefer it over 'ws' to avoid native module errors.
+neonConfig.webSocketConstructor = globalThis.WebSocket || ws;
+
+const adapter = new PrismaNeon({ connectionString: process.env.DATABASE_URL! });
 
 const prismaClientSingleton = () => {
-  return new PrismaClient();
+  return new PrismaClient({ adapter });
 };
 
-declare global {
-  var prisma: undefined | ReturnType<typeof prismaClientSingleton>;
-}
+const globalForPrisma = globalThis as unknown as {
+  prisma: ReturnType<typeof prismaClientSingleton> | undefined;
+};
 
-// Lazy-loaded prisma instance
-// On Vercel build time, this file will be imported, but since it's just a function,
-// it won't try to instantiate the client and connect to the database.
 export const getPrisma = () => {
   if (typeof window !== 'undefined') {
     throw new Error('Prisma cannot be used on the client side.');
   }
 
-  if (process.env.NODE_ENV === 'production') {
-    return prismaClientSingleton();
-  } else {
-    if (!globalThis.prisma) {
-      globalThis.prisma = prismaClientSingleton();
-    }
-    return globalThis.prisma;
+  if (!globalForPrisma.prisma) {
+    globalForPrisma.prisma = prismaClientSingleton();
   }
+  
+  return globalForPrisma.prisma;
 };

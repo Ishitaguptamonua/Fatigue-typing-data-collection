@@ -34,6 +34,7 @@ export default function Home() {
   const [sentences, setSentences] = useState<string[]>([]);
   const [currentSentenceIdx, setCurrentSentenceIdx] = useState(0);
   const [typedChars, setTypedChars] = useState("");
+  const [typedHistory, setTypedHistory] = useState("");
   const [keystrokes, setKeystrokes] = useState<Keystroke[]>([]);
 
   // Timings
@@ -88,6 +89,7 @@ export default function Home() {
     setSentences(getRandomSentences(5));
     setCurrentSentenceIdx(0);
     setTypedChars("");
+    setTypedHistory("");
     setKeystrokes([]);
     // Generate a new TestSectionId and set start time in a client effect
     setGameState("TYPING");
@@ -135,7 +137,7 @@ export default function Home() {
     const pressTime = activeKeys.current[e.key];
     const releaseTime = Date.now();
 
-    if (pressTime && pressTime !== releaseTime) {
+    if (pressTime !== undefined) {
       // Only log valid character keys — filter modifier keys
       if (VALID_KEY_REGEX.test(e.key) || e.key === "Backspace") {
         setKeystrokes(prev => [...prev, {
@@ -151,9 +153,11 @@ export default function Home() {
   };
 
   const finishSentence = () => {
+    const newHistory = typedChars + " ";
     if (currentSentenceIdx < sentences.length - 1) {
       setCurrentSentenceIdx(prev => prev + 1);
-      setTypedChars(prev => prev + " ");
+      setTypedHistory(newHistory);
+      setTypedChars(newHistory);
     } else {
       finishGame();
     }
@@ -329,10 +333,9 @@ export default function Home() {
                   autoCorrect="off"
                   autoCapitalize="off"
                   spellCheck="false"
-                  value={typedChars.substring(sentences.slice(0, currentSentenceIdx).join(" ").length + (currentSentenceIdx > 0 ? 1 : 0))}
+                  value={typedChars.substring(typedHistory.length)}
                   onChange={(e) => {
-                    const prevText = sentences.slice(0, currentSentenceIdx).join(" ") + (currentSentenceIdx > 0 ? " " : "");
-                    setTypedChars(prevText + e.target.value);
+                    setTypedChars(typedHistory + e.target.value);
                   }}
                   onKeyDown={handleKeyDown}
                   onKeyUp={handleKeyUp}

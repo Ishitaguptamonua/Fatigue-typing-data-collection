@@ -20,6 +20,8 @@ const EXCLUDED_KEYS = new Set([
 export async function POST(request: Request) {
   try {
     const data = await request.json();
+    console.log('[API/Submit] Received payload for:', data.participantName);
+
     const {
       participantName,
       testSectionId,
@@ -39,47 +41,60 @@ export async function POST(request: Request) {
 
     const prisma = getPrisma();
 
+    // Ensure numeric types for Prisma 7 strictness
+    const mF = Number(mentalFatigue) || 3;
+    const fL = Number(focusLevel) || 3;
+    const pF = Number(physicalFatigue) || 3;
+    const w = Number(wpm) || 0;
+    const eR = Number(errorRate) || 0;
+
     // Clean keystrokes: remove modifier keys, remove zero-dwell rows
-    const cleanedKeystrokes: KeystrokeInput[] = (keystrokes as KeystrokeInput[]).filter(
-      (ks) => !EXCLUDED_KEYS.has(ks.key) && ks.releaseTime > ks.pressTime
+    const rawKeystrokes = (keystrokes || []) as KeystrokeInput[];
+    const cleanedKeystrokes = rawKeystrokes.filter(
+      (ks) => ks && !EXCLUDED_KEYS.has(ks.key) && Number(ks.releaseTime) >= Number(ks.pressTime)
     );
 
     // Fatigue label: any high score (>=4) in the 3 metrics counts as fatigued
-    const fatigueLabel = (mentalFatigue >= 4 || focusLevel >= 4 || physicalFatigue >= 4) ? 1 : 0;
+    const fatigueLabel = (mF >= 4 || fL >= 4 || pF >= 4) ? 1 : 0;
 
-    // Upsert participant (find or create by name)
+    // Upsert participant
     const participant = await prisma.participant.upsert({
       where: { name: participantName.trim() },
       update: {},
       create: { name: participantName.trim() },
     });
 
-    // Create session linked to participant
+    // Create session
     const session = await prisma.session.create({
       data: {
         participantId: participant.id,
-        testSectionId: testSectionId || undefined,
-        mentalFatigue,
-        focusLevel,
-        physicalFatigue,
+        testSectionId: testSectionId || `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        mentalFatigue: mF,
+        focusLevel: fL,
+        physicalFatigue: pF,
         fatigueLabel,
-        wpm,
-        errorRate,
-        targetText,
-        typedText,
+        wpm: w,
+        errorRate: eR,
+        targetText: String(targetText || ""),
+        typedText: String(typedText || ""),
         keystrokes: {
           create: cleanedKeystrokes.map((ks) => ({
-            key: ks.key,
-            pressTime: ks.pressTime,
-            releaseTime: ks.releaseTime,
+            key: String(ks.key),
+            pressTime: Number(ks.pressTime),
+            releaseTime: Number(ks.releaseTime),
           })),
         },
       },
     });
 
+    console.log('[API/Submit] Success! Session ID:', session.id);
     return NextResponse.json({ success: true, sessionId: session.id, participantId: participant.id });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json({ success: false, error: 'Failed to save session' }, { status: 500 });
+  } catch (error: any) {
+    console.error('[API/Submit] Error Details:', error);
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Failed to save session',
+      details: error.message 
+    }, { status: 500 });
   }
 }

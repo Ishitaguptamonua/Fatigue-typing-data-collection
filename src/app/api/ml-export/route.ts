@@ -50,7 +50,7 @@ function processSegment(
 
   for (let i = 0; i < ks.length; i++) {
     const dwell = ks[i].releaseTime - ks[i].pressTime;
-    if (dwell > 0) dwells.push(dwell);
+    dwells.push(dwell);
 
     if (i < ks.length - 1) {
       const flight = ks[i + 1].pressTime - ks[i].releaseTime;
