@@ -9,5 +9,4 @@ export default defineConfig({
   datasource: {
     url: process.env.DATABASE_URL, // Required for migrate
   },
-  provider: "postgresql",
 });
