@@ -114,7 +114,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
                         </span>
                       </td>
                       <td className="p-4 text-center text-slate-400">
-                        M{session.mentalFatigue} / F{session.focusLevel}
+                        M{session.mentalFatigue} / F{session.focusLevel} / P{session.physicalFatigue}
                       </td>
                     </tr>
                   ))

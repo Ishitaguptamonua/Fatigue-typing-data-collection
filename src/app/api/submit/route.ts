@@ -22,8 +22,10 @@ export async function POST(request: Request) {
     const data = await request.json();
     const {
       participantName,
+      testSectionId,
       mentalFatigue,
       focusLevel,
+      physicalFatigue,
       targetText,
       typedText,
       keystrokes,
@@ -42,8 +44,8 @@ export async function POST(request: Request) {
       (ks) => !EXCLUDED_KEYS.has(ks.key) && ks.releaseTime > ks.pressTime
     );
 
-    // Fatigue label: high mental fatigue OR high difficulty concentrating = fatigued
-    const fatigueLabel = (mentalFatigue >= 4 || focusLevel >= 4) ? 1 : 0;
+    // Fatigue label: any high score (>=4) in the 3 metrics counts as fatigued
+    const fatigueLabel = (mentalFatigue >= 4 || focusLevel >= 4 || physicalFatigue >= 4) ? 1 : 0;
 
     // Upsert participant (find or create by name)
     const participant = await prisma.participant.upsert({
@@ -56,8 +58,10 @@ export async function POST(request: Request) {
     const session = await prisma.session.create({
       data: {
         participantId: participant.id,
+        testSectionId: testSectionId || undefined,
         mentalFatigue,
         focusLevel,
+        physicalFatigue,
         fatigueLabel,
         wpm,
         errorRate,

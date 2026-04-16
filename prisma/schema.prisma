@@ -5,7 +5,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model Participant {
@@ -20,13 +19,15 @@ model Session {
   participantId String
   participant   Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
   createdAt     DateTime    @default(now())
-  mentalFatigue Int
-  focusLevel    Int
-  fatigueLabel  Int
-  wpm           Float
-  errorRate     Float
-  targetText    String
-  typedText     String
+  testSectionId String      @unique
+  mentalFatigue   Int
+  focusLevel      Int
+  physicalFatigue Int
+  fatigueLabel    Int
+  wpm             Float
+  errorRate       Float
+  targetText      String
+  typedText       String
   keystrokes    Keystroke[]
 }
 

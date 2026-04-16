@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { v4 as uuidv4 } from "uuid";
 import { Play, Activity, Clock, CheckCircle, Keyboard, ChevronRight, UserCircle, User } from "lucide-react";
 import { getRandomSentences, calculateAccuracy } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -20,6 +21,13 @@ export default function Home() {
   const [gameState, setGameState] = useState<GameState>("MENU");
   const [participantName, setParticipantName] = useState("");
   const [nameError, setNameError] = useState("");
+  const [testSectionId, setTestSectionId] = useState<string>("");
+    // Load participant name from localStorage on mount
+    useEffect(() => {
+      const storedName = typeof window !== "undefined" ? localStorage.getItem("participantName") : "";
+      if (storedName) setParticipantName(storedName);
+    }, []);
+
   const [sentences, setSentences] = useState<string[]>([]);
   const [currentSentenceIdx, setCurrentSentenceIdx] = useState(0);
   const [typedChars, setTypedChars] = useState("");
@@ -32,9 +40,9 @@ export default function Home() {
   const [wpm, setWpm] = useState(0);
   const [errorRate, setErrorRate] = useState(0);
 
-  // Fatigue
   const [mentalFatigue, setMentalFatigue] = useState(3);
   const [focusLevel, setFocusLevel] = useState(3);
+  const [physicalFatigue, setPhysicalFatigue] = useState(3);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Press Tracking
@@ -70,6 +78,10 @@ export default function Home() {
       return;
     }
     setNameError("");
+    // Store participant name in localStorage
+    if (typeof window !== "undefined") {
+      localStorage.setItem("participantName", participantName.trim());
+    }
     setSentences(getRandomSentences(5));
     setCurrentSentenceIdx(0);
     setTypedChars("");
@@ -77,6 +89,8 @@ export default function Home() {
     setStartTime(Date.now());
     setRealTimeWpm(0);
     setRealTimeAccuracy(100);
+    // Generate a new TestSectionId for this session
+    setTestSectionId(uuidv4());
     setGameState("TYPING");
   };
 
@@ -118,7 +132,9 @@ export default function Home() {
         setKeystrokes(prev => [...prev, {
           key: e.key,
           pressTime,
-          releaseTime
+          releaseTime,
+          participantId: participantName.trim(),
+          testSectionId: testSectionId || ""
         }]);
       }
       delete activeKeys.current[e.key];
@@ -158,8 +174,10 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           participantName: participantName.trim(),
+          testSectionId: testSectionId,
           mentalFatigue,
           focusLevel,
+          physicalFatigue,
           targetText: sentences.join(" "),
           typedText: typedChars,
           wpm,
@@ -361,6 +379,21 @@ export default function Home() {
                       className="w-full accent-indigo-500"
                     />
                     <div className="text-center text-indigo-400 font-mono font-bold mt-1">{focusLevel}/5</div>
+                  </div>
+
+                  <div>
+                    <label className="block text-lg font-medium text-slate-200 mb-1">
+                      3. How physically fatigued do you feel?
+                    </label>
+                    <div className="flex justify-between text-xs text-slate-500 mb-3">
+                      <span>Rested</span><span>Physically Drained</span>
+                    </div>
+                    <input
+                      type="range" min="1" max="5"
+                      value={physicalFatigue} onChange={(e) => setPhysicalFatigue(parseInt(e.target.value))}
+                      className="w-full accent-indigo-500"
+                    />
+                    <div className="text-center text-indigo-400 font-mono font-bold mt-1">{physicalFatigue}/5</div>
                   </div>
                 </div>
 

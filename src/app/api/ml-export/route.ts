@@ -101,7 +101,7 @@ export async function GET() {
     const allRows: SegmentFeatures[] = [];
 
     for (const session of sessions) {
-      const ks = session.keystrokes as KeystrokeRow[];
+      const ks = session.keystrokes as (KeystrokeRow & { participantId?: string; testSectionId?: string })[];
       if (ks.length < SEGMENT_SIZE) continue; // skip sessions too short to segment
 
       const segments: KeystrokeRow[][] = [];
@@ -117,7 +117,14 @@ export async function GET() {
 
       segments.forEach((seg, i) => {
         allRows.push(
-          processSegment(seg, i, segments.length, session.participant.name, session.id, session.fatigueLabel)
+          processSegment(
+            seg,
+            i,
+            segments.length,
+            session.participant.name,
+            session.testSectionId || session.id,
+            session.fatigueLabel
+          )
         );
       });
     }
@@ -128,9 +135,8 @@ export async function GET() {
 
     // Serialize as CSV
     const headers = [
-      'Participant', 'Session', 'Segment', 'TotalSegments', 'KeystrokeCount',
-      'MeanDwell', 'MeanFlight', 'MeanDD', 'Speed', 'PauseRate',
-      'DwellStd', 'FlightStd', 'Label'
+      'Participant', 'Session', 'Segment', 'MeanDwell', 'MeanFlight', 
+      'Speed', 'PauseRate', 'DwellStd', 'FlightStd', 'Label'
     ];
 
     const csvRows = [
@@ -139,11 +145,8 @@ export async function GET() {
         `"${r.participant}"`,
         `"${r.session}"`,
         r.segment,
-        r.totalSegments,
-        r.keystrokeCount,
         r.meanDwell,
         r.meanFlight,
-        r.meanDD,
         r.speed,
         r.pauseRate,
         r.dwellStd,
