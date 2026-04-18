@@ -236,24 +236,34 @@ export default function Home() {
               </p>
 
               {/* Instructions */}
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 py-6 px-8 bg-white/5 border border-white/10 rounded-3xl max-w-md mx-auto">
-                <div className="flex items-center gap-3">
+              <div className="flex flex-col md:flex-row items-stretch md:items-center justify-center gap-4 py-6 px-6 bg-white/5 border border-white/10 rounded-3xl max-w-2xl mx-auto">
+                <div className="flex items-center gap-3 px-2">
                   <div className="p-2 bg-indigo-500/20 rounded-xl text-indigo-400">
-                    <Monitor className="w-5 h-5" />
+                    <Monitor className="w-4 h-4" />
                   </div>
                   <div className="text-left">
-                    <div className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Setup</div>
-                    <div className="text-sm font-semibold text-slate-200">Use a PC / Computer</div>
+                    <div className="text-[9px] text-slate-500 uppercase font-bold tracking-widest">Setup</div>
+                    <div className="text-xs font-semibold text-slate-200">Use a PC / Laptop</div>
                   </div>
                 </div>
-                <div className="hidden sm:block w-px h-8 bg-white/10" />
-                <div className="flex items-center gap-3">
+                <div className="hidden md:block w-px h-8 bg-white/10" />
+                <div className="flex items-center gap-3 px-2">
                   <div className="p-2 bg-amber-500/20 rounded-xl text-amber-400">
-                    <Check className="w-5 h-5" />
+                    <Check className="w-4 h-4" />
                   </div>
                   <div className="text-left">
-                    <div className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Protocol</div>
-                    <div className="text-sm font-semibold text-slate-200">Copy Exactly</div>
+                    <div className="text-[9px] text-slate-500 uppercase font-bold tracking-widest">Protocol</div>
+                    <div className="text-xs font-semibold text-slate-200">Copy Exactly</div>
+                  </div>
+                </div>
+                <div className="hidden md:block w-px h-8 bg-white/10" />
+                <div className="flex items-center gap-3 px-2">
+                  <div className="p-2 bg-rose-500/20 rounded-xl text-rose-400">
+                    <UserCircle className="w-4 h-4" />
+                  </div>
+                  <div className="text-left">
+                    <div className="text-[9px] text-slate-500 uppercase font-bold tracking-widest">Identity</div>
+                    <div className="text-xs font-semibold text-slate-200">Same Name Everytime</div>
                   </div>
                 </div>
               </div>
