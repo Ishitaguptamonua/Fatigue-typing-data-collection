@@ -19,9 +19,60 @@ export const sentences = [
   "Time flies when you are having fun."
 ];
 
+export function introduceAbnormalities(sentence: string, count: number = 3): string {
+  let modifiedSentence = sentence;
+  let changesApplied = 0;
+  let attempts = 0;
+  const maxAttempts = 50;
+
+  // Potential distortions
+  const distortions = [
+    // Spelling: Swap vowels
+    (s: string) => s.replace(/[aeiou]/i, (m) => ({ 'a': 'e', 'e': 'i', 'i': 'o', 'o': 'u', 'u': 'a', 'A': 'E', 'E': 'I', 'I': 'O', 'O': 'U', 'U': 'A' }[m] || m)),
+    // Spelling: Double a consonant
+    (s: string) => s.replace(/([bcdfghjklmnpqrstvwxyz])/i, "$1$1"),
+    // Spelling: Remove a letter
+    (s: string) => s.length > 3 ? s.slice(0, Math.floor(s.length / 2)) + s.slice(Math.floor(s.length / 2) + 1) : s,
+    // Spelling: Specific replacements
+    (s: string) => s.toLowerCase() === "begin" ? "bigin" : (s.toLowerCase() === "rome" ? "roma" : s),
+    // Punctuation: Swap period for semicolon
+    (s: string) => s.replace(".", ";"),
+    // Punctuation: Swap comma for colon
+    (s: string) => s.replace(",", ":"),
+    // Punctuation: Add random mark
+    (s: string) => s.endsWith("!") || s.endsWith("?") || s.endsWith(".") ? s : s + "!",
+    // Spelling: Swap adjacent letters
+    (s: string) => {
+      if (s.length < 2) return s;
+      const arr = s.split("");
+      const idx = Math.floor(Math.random() * (arr.length - 1));
+      [arr[idx], arr[idx + 1]] = [arr[idx + 1], arr[idx]];
+      return arr.join("");
+    }
+  ];
+
+  while (changesApplied < count && attempts < maxAttempts) {
+    const words = modifiedSentence.split(" ");
+    const randomWordIdx = Math.floor(Math.random() * words.length);
+    const randomDistortionIdx = Math.floor(Math.random() * distortions.length);
+    
+    const originalWord = words[randomWordIdx];
+    const distortedWord = distortions[randomDistortionIdx](originalWord);
+    
+    if (originalWord !== distortedWord) {
+      words[randomWordIdx] = distortedWord;
+      modifiedSentence = words.join(" ");
+      changesApplied++;
+    }
+    attempts++;
+  }
+
+  return modifiedSentence;
+}
+
 export function getRandomSentences(count: number = 5): string[] {
   const shuffled = [...sentences].sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, count);
+  return shuffled.slice(0, count).map(s => introduceAbnormalities(s, 3));
 }
 
 export function calculateEditDistance(a: string, b: string): number {

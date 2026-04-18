@@ -15,7 +15,7 @@ interface Keystroke {
 }
 
 // Keys to filter out for ML processing (done server-side, but tracked for reference)
-const VALID_KEY_REGEX = /^[\w\s.,!?'"-]$/;
+const VALID_KEY_REGEX = /^[\w\s.,!?'";:-]$/;
 
 export default function Home() {
   const [gameState, setGameState] = useState<GameState>("MENU");
