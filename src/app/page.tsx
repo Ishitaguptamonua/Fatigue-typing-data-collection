@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { Play, Activity, Clock, CheckCircle, Keyboard, ChevronRight, UserCircle, User } from "lucide-react";
+import { Play, Activity, Clock, CheckCircle, Keyboard, ChevronRight, UserCircle, User, Monitor, Check } from "lucide-react";
 import { getRandomSentences, calculateAccuracy } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -234,6 +234,29 @@ export default function Home() {
               <p className="text-xl text-slate-400 max-w-lg mx-auto">
                 Help us map keystroke dynamics for cognitive fatigue tracking.
               </p>
+
+              {/* Instructions */}
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 py-6 px-8 bg-white/5 border border-white/10 rounded-3xl max-w-md mx-auto">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-indigo-500/20 rounded-xl text-indigo-400">
+                    <Monitor className="w-5 h-5" />
+                  </div>
+                  <div className="text-left">
+                    <div className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Setup</div>
+                    <div className="text-sm font-semibold text-slate-200">Use a PC / Computer</div>
+                  </div>
+                </div>
+                <div className="hidden sm:block w-px h-8 bg-white/10" />
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-amber-500/20 rounded-xl text-amber-400">
+                    <Check className="w-5 h-5" />
+                  </div>
+                  <div className="text-left">
+                    <div className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Protocol</div>
+                    <div className="text-sm font-semibold text-slate-200">Copy Exactly</div>
+                  </div>
+                </div>
+              </div>
 
               {/* Name Input */}
               <div className="max-w-sm mx-auto pt-4">
