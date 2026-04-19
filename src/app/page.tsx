@@ -229,10 +229,10 @@ export default function Home() {
                 <Keyboard className="w-12 h-12 text-indigo-400" />
               </div>
               <h1 className="text-5xl font-extrabold tracking-tight bg-gradient-to-br from-white to-slate-400 bg-clip-text text-transparent">
-                TypeSense
+                Type wirh Therrors
               </h1>
               <p className="text-xl text-slate-400 max-w-lg mx-auto">
-                Help us map keystroke dynamics for cognitive fatigue tracking.
+                Collecting natural typing patterns. Don&apos;t correct your mistakes — just keep typing.
               </p>
 
               {/* Instructions */}
@@ -253,7 +253,7 @@ export default function Home() {
                   </div>
                   <div className="text-left">
                     <div className="text-[9px] text-slate-500 uppercase font-bold tracking-widest">Protocol</div>
-                    <div className="text-xs font-semibold text-slate-200">Copy Exactly</div>
+                    <div className="text-xs font-semibold text-slate-200">Don&apos;t Correct Errors</div>
                   </div>
                 </div>
                 <div className="hidden md:block w-px h-8 bg-white/10" />
@@ -373,7 +373,7 @@ export default function Home() {
                   onKeyDown={handleKeyDown}
                   onKeyUp={handleKeyUp}
                   className="w-full bg-transparent border-b-2 border-indigo-500/30 focus:border-indigo-400 focus:outline-none text-2xl font-mono pb-4 transition-colors placeholder:text-slate-700"
-                  placeholder="Type the sequence and hit Enter..."
+                  placeholder="Type naturally, don&apos;t correct errors, and hit Enter..."
                 />
               </div>
             </motion.div>

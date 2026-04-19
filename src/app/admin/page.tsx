@@ -91,7 +91,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
                 {sessions.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="p-12 text-center text-slate-500 font-sans">
-                      No sessions recorded yet. Have participants take the test!
+                      No sessions recorded yet. Have participants complete a session!
                     </td>
                   </tr>
                 ) : (
